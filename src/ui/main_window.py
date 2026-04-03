@@ -3,18 +3,24 @@ from PySide6.QtWidgets import QMainWindow
 from PySide6.QtUiTools import QUiLoader
 from PySide6.QtCore import QFile
 from serial.tools import list_ports
+from PySide6.QtWidgets import QApplication
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.setWindowTitle("Alphaflight")
         # Load the .ui file dynamically
         ui_file = QFile("ui/main_window.ui")
         ui_file.open(QFile.ReadOnly)
         loader = QUiLoader()
-        self.ui = loader.load(ui_file, self)
+        self.ui = loader.load(ui_file)  # ← no parent!
         ui_file.close()
+
+        self.setCentralWidget(self.ui)  # ← THIS is what actually shows it
+
+        self.setMinimumSize(800, 600)  # width, height in pixels
 
         # Access widgets
         self.combo_ports = self.ui.findChild(type(self.ui.comboBox_ports), "comboBox_ports")
@@ -41,3 +47,6 @@ class MainWindow(QMainWindow):
             print(f"Connecting to {port}...")
         else:
             print("No port selected!")
+
+    def closeEvent(self, event):
+        QApplication.quit()
